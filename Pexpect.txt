@@ -1,0 +1,113 @@
+#! usr/bin/python 
+
+#Exercise 1
+newprimates = open("primates2.nex", "w") #w means its writeable, and/or replaces everything
+oldprimates = open("primates.nex").read()
+print(oldprimates)
+corrected = oldprimates.replace('mcmc', 'mcmcp')
+print(corrected)
+newprimates.write(corrected)
+newprimates.close()
+
+
+#Exercise 2
+import pexpect
+
+child = pexpect.spawn("mb -i primates2.nex") #can run the string inside the quotes in terminal to see what mrbayes does normally
+child.sendline(r"mcmc")
+child.sendline("no") 
+child.expect("MrBayes >")
+print child.before
+child.sendline("quit")
+
+child = pexpect.spawn("mb -i primates2.nex")
+child.sendline(r"sumt") 
+child.sendline("no")   #yes to see the results
+child.expect("MrBayes >")
+print child.before   #Getting an error in command "Execute"
+child.sendline("sump")
+child.sendline("quit")
+
+#Globbing...
+import glob
+allfiles = glob.glob("*") #looks for all files in the current directory with any name
+allfiles
+s_usr_bin = glob.glob("/usr/bin/s*") #looks for all files in the directory that start with s
+s_usr_bin
+images = glob.glob("*.jpg") #looks for all.jpg files in the current directory
+
+
+import glob, pexpect
+nexus_files = glob.glob("*.nex") #looks for all nexus files in the current directory
+for nex in nexus_files:
+    output = pexpect.run("mb nex")  #tells MrBayes to run all of the nexus files
+   
+   
+    
+#Exercise 3
+
+#this way works, but it's not a function..
+
+#This should be function 1
+child = pexpect.spawn("mb -i *.nex")
+child.sendline("yes")
+child.sendline("no")
+child.sendline(r"set nowarn = yes") 
+child.sendline("mcmcp ngen = 1000")
+child.sendline(r"mcmc")
+child.sendline("no")
+child.expect("MrBayes >")
+print child.before  
+child.sendline("quit")
+
+#This should be function 2
+child = pexpect.spawn("mb -i *.nex")
+child.sendline("no")
+child.sendline(r"set nowarn = yes")
+child.sendline(r"sumt")   
+child.sendline("sump")
+print child.before  
+child.sendline("quit")
+
+
+
+#making a function this way:
+def MrBayes_function1(nexus_file, numgen = 1000):
+    child = pexpect.spawn("mb -i" + nexus_file)
+    child.sendline("yes")
+    child.sendline("no")
+    child.sendline(r"set nowarn = yes") 
+    child.sendline("mcmcp ngen = " + numgen)
+    child.sendline(r"mcmc")
+    child.sendline("no")
+    child.expect("MrBayes >")
+    print child.before  
+    child.sendline("quit")
+    
+def MrBayes_function2(nexus_file, numgen = 1000):
+    child = pexpect.spawn("mb -i" + nexus_file)
+    child.sendline("no")
+    child.sendline(r"set nowarn = yes")
+    child.sendline(r"sumt")   
+    child.sendline("sump")
+    print child.before  
+    child.sendline("quit")
+    
+nexus_files = glob.glob("*.nex") #looks for all nexus files in the current directory
+
+for nex in nexus_files:
+    MrBayes_function1(nex, 1000)
+
+#print("There are " + str(len(glob.glob("*.nex")) + " total files in the current directory and " + str(len(glob.glob("*.t"))) + " files that end in '.t'")
+print("There are " + str(len(glob.glob("*.nex")))) #I had to split this up to work correctly
+print("total files in the current directory") 
+print("and " + str(len(glob.glob("*.t"))) + " files that end in '.t'")
+print("These files end in '.t': " + str(glob.glob("*.t")))
+
+for nex in nexus_files:
+    MrBayes_function2(nex, 1000)
+
+print("There are " + str(len(glob.glob("*.nex")))) #I had to split this up to work correctly
+print("total files in the current directory") 
+print("and " + str(len(glob.glob("*.t"))) + " files that end in '.t'")
+print("These files end in '.t': " + str(glob.glob("*.t")))
